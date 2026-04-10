@@ -12,10 +12,42 @@
             color: #FFFFFF;
             margin: 0;
             padding: 20px;
+            height: 95vh;
             display: flex;
-            height: 90vh;
-            gap: 20px;
+            flex-direction: column;
         }
+
+        /* SEKMELER (TABS) */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background-color: #252533;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #2E8B57;
+        }
+        .tab-content {
+            display: none;
+            gap: 20px;
+            flex-grow: 1;
+            height: calc(100% - 60px);
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* PANELLER */
         .panel {
             background-color: #252533;
             border-radius: 12px;
@@ -26,33 +58,42 @@
             width: 320px;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
         }
         .right-panel {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
+
         h2 { margin-top: 0; color: #00D2D3; font-size: 24px; margin-bottom: 5px; }
         .subtitle { color: #A0A0B0; font-size: 13px; margin-bottom: 20px; }
         
-        /* Oyuncu Listesi (Checkboxes) */
-        .player-list { flex-grow: 1; overflow-y: auto; margin-bottom: 20px; background-color: #1E1E28; padding: 10px; border-radius: 8px; }
-        .player-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s;}
+        /* OYUNCU LİSTESİ */
+        .player-list { 
+            flex-grow: 1; overflow-y: auto; margin-bottom: 20px; 
+            background-color: #1E1E28; padding: 10px; border-radius: 8px; 
+        }
+        .player-item { 
+            display: flex; align-items: center; padding: 10px; 
+            border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s;
+        }
         .player-item:hover { background-color: #2E8B57; }
-        .player-item input { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
+        .player-item input[type="checkbox"] { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
         .player-item span { font-size: 15px; font-weight: 500; }
         .player-rating { margin-left: auto; color: #FFD700; font-weight: bold; }
 
-        /* Buton */
+        /* BUTONLAR */
         .btn {
-            background-color: #2E8B57; color: white; border: none; padding: 15px;
-            border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
-            transition: background 0.3s;
+            color: white; border: none; padding: 12px; border-radius: 8px; 
+            font-size: 14px; font-weight: bold; cursor: pointer; transition: opacity 0.3s;
         }
-        .btn:hover { background-color: #1e6e43; }
+        .btn:hover { opacity: 0.8; }
+        .btn-green { background-color: #2E8B57; font-size: 16px; padding: 15px;}
+        .btn-blue { background-color: #2980b9; flex-grow: 1;}
+        .btn-orange { background-color: #f39c12; }
+        .btn-red { background-color: #e74c3c; width: 100%; margin-top: 10px;}
 
-        /* Yeşil Saha (Pitch) */
+        /* YEŞİL SAHA */
         .pitch {
             background-color: #2E8B57; border: 4px solid #FFFFFF; border-radius: 10px;
             flex-grow: 1; position: relative; overflow: hidden;
@@ -62,47 +103,94 @@
         .box-left { position: absolute; left: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-left: none; transform: translateY(-50%); }
         .box-right { position: absolute; right: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-right: none; transform: translateY(-50%); }
         
-        /* Oyuncular ve İstatistikler */
         .stats { position: absolute; top: 15px; padding: 12px; background: rgba(0,0,0,0.6); border-radius: 8px; font-size: 14px; line-height: 1.5; z-index: 10; }
         .stats-a { left: 15px; border-left: 4px solid #00D2D3; }
         .stats-b { right: 15px; text-align: right; border-right: 4px solid #FF9F43; }
         
-        .player-dot {
-            position: absolute; text-align: center; transform: translate(-50%, -50%); transition: all 0.5s ease;
-        }
+        .player-dot { position: absolute; text-align: center; transform: translate(-50%, -50%); transition: all 0.5s ease; }
         .dot { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #FFFFFF; margin: 0 auto 5px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 12px;}
         .team-a .dot { background-color: #00D2D3; color: black; }
         .team-b .dot { background-color: #FF9F43; color: black; }
         .name { font-size: 13px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+
+        /* FORM ALANLARI */
+        .form-group { display: flex; align-items: center; margin-bottom: 12px; }
+        .form-group label { width: 120px; font-weight: bold; color: #A0A0B0; }
+        .form-group input { 
+            flex-grow: 1; padding: 10px; background-color: #1E1E28; 
+            border: 1px solid #333; color: white; border-radius: 6px; outline: none;
+        }
+        .form-group input:focus { border-color: #2E8B57; }
+        .form-row { display: flex; gap: 10px; margin-top: 20px;}
+        .form-container { background-color: #1E1E28; padding: 25px; border-radius: 10px; max-width: 500px;}
     </style>
 </head>
 <body>
 
-    <div class="panel left-panel">
-        <h2>KADRO SEÇİMİ</h2>
-        <div class="subtitle">Sahaya çıkacak 10 kişiyi seçin</div>
-        <div class="player-list" id="playerList">
-            </div>
-        <button class="btn" onclick="sahayaDiz()">⚽ SAHAYA DİZ</button>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="sekmeDegistir('saha', this)">⚽ Maç Günü (Saha)</button>
+        <button class="tab-btn" onclick="sekmeDegistir('yonetim', this)">⚙️ Oyuncu Yönetimi</button>
     </div>
 
-    <div class="panel right-panel">
-        <div class="pitch" id="pitch">
-            <div class="line-center"></div>
-            <div class="circle-center"></div>
-            <div class="box-left"></div>
-            <div class="box-right"></div>
+    <div id="sekme-saha" class="tab-content active">
+        <div class="panel left-panel">
+            <h2>KADRO SEÇİMİ</h2>
+            <div class="subtitle">Sahaya çıkacak 10 kişiyi seçin</div>
+            <div class="player-list" id="playerListMatch">
+                </div>
+            <button class="btn btn-green" onclick="sahayaDiz()">⚽ SAHAYA DİZ</button>
+        </div>
+
+        <div class="panel right-panel">
+            <div class="pitch" id="pitch">
+                <div class="line-center"></div>
+                <div class="circle-center"></div>
+                <div class="box-left"></div>
+                <div class="box-right"></div>
+                
+                <div id="statsA" class="stats stats-a" style="display: none;"></div>
+                <div id="statsB" class="stats stats-b" style="display: none;"></div>
+                
+                <div id="playersLayer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sekme-yonetim" class="tab-content">
+        <div class="panel left-panel">
+            <h2 style="color: #FF9F43;">TÜM OYUNCULAR</h2>
+            <div class="subtitle">Düzenlemek için tıklayın</div>
+            <div class="player-list" id="playerListManage">
+                </div>
+        </div>
+
+        <div class="panel right-panel">
+            <h2>İstatistik Paneli</h2>
+            <div class="subtitle">1 ile 10 arasında puanlar girin</div>
             
-            <div id="statsA" class="stats stats-a" style="display: none;"></div>
-            <div id="statsB" class="stats stats-b" style="display: none;"></div>
-            
-            <div id="playersLayer"></div>
+            <div class="form-container">
+                <div class="form-group"><label>İsim:</label><input type="text" id="form-isim"></div>
+                <div class="form-group"><label>Hız:</label><input type="number" min="1" max="10" id="form-hiz"></div>
+                <div class="form-group"><label>Şut:</label><input type="number" min="1" max="10" id="form-sut"></div>
+                <div class="form-group"><label>Pas:</label><input type="number" min="1" max="10" id="form-pas"></div>
+                <div class="form-group"><label>Defans:</label><input type="number" min="1" max="10" id="form-defans"></div>
+                <div class="form-group"><label>Fizik:</label><input type="number" min="1" max="10" id="form-fizik"></div>
+                <div class="form-group"><label>Yetenek:</label><input type="number" min="1" max="10" id="form-yetenek"></div>
+                <div class="form-group"><label>Takım Oyunu:</label><input type="number" min="1" max="10" id="form-takim_oyunu"></div>
+                <div class="form-group"><label>Disiplin:</label><input type="number" min="1" max="10" id="form-disiplin"></div>
+                
+                <div class="form-row">
+                    <button class="btn btn-orange" onclick="formuTemizle()">✨ Yeni Form</button>
+                    <button class="btn btn-blue" onclick="oyuncuKaydet()">💾 Kaydet / Güncelle</button>
+                </div>
+                <button class="btn btn-red" onclick="oyuncuSil()">🗑️ Seçili Oyuncuyu Sil</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Oyuncu Veritabanı
-        const oyuncular = [
+        // --- VERİTABANI (LocalStorage Kullanımı) ---
+        const varsayilanOyuncular = [
             {isim: "Fiko", hiz: 9, sut: 7, pas: 9, defans: 9, fizik: 10, yetenek: 9, takim_oyunu: 9, disiplin: 9},
             {isim: "Emir", hiz: 6, sut: 9, pas: 10, defans: 8, fizik: 7, yetenek: 10, takim_oyunu: 10, disiplin: 9},
             {isim: "Burak", hiz: 8, sut: 5, pas: 10, defans: 10, fizik: 8, yetenek: 9, takim_oyunu: 10, disiplin: 9},
@@ -120,33 +208,116 @@
             {isim: "Burak İnci", hiz: 7, sut: 10, pas: 6, defans: 7, fizik: 8, yetenek: 6, takim_oyunu: 6, disiplin: 6}
         ];
 
-        // Reytingleri Hesapla
-        oyuncular.forEach(o => {
+        let oyuncular = JSON.parse(localStorage.getItem('halisaha_verileri'));
+        if (!oyuncular) {
+            oyuncular = varsayilanOyuncular;
+            localStorage.setItem('halisaha_verileri', JSON.stringify(oyuncular));
+        }
+
+        let seciliOyuncuIndex = -1;
+
+        // --- ORTAK FONKSİYONLAR ---
+        function verileriKaydet() {
+            localStorage.setItem('halisaha_verileri', JSON.stringify(oyuncular));
+            listeleriGuncelle();
+        }
+
+        function reytingHesapla(o) {
             let toplam = o.hiz + o.sut + o.pas + o.defans + o.fizik + o.yetenek + o.takim_oyunu + o.disiplin;
-            o.reyting = (toplam / 8).toFixed(1);
-        });
+            return (toplam / 8).toFixed(1);
+        }
 
-        // Sol Panele Oyuncuları Listele
-        const listDiv = document.getElementById("playerList");
-        oyuncular.forEach((o, index) => {
-            let label = document.createElement("label");
-            label.className = "player-item";
-            label.innerHTML = `
-                <input type="checkbox" value="${index}">
-                <span>${o.isim}</span>
-                <span class="player-rating">${o.reyting}</span>
-            `;
-            listDiv.appendChild(label);
-        });
+        function sekmeDegistir(sekmeId, buton) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('sekme-' + sekmeId).classList.add('active');
+            buton.classList.add('active');
+        }
 
-        // Python'daki itertools.combinations'ın JavaScript karşılığı
+        function listeleriGuncelle() {
+            const listMatch = document.getElementById("playerListMatch");
+            const listManage = document.getElementById("playerListManage");
+            listMatch.innerHTML = "";
+            listManage.innerHTML = "";
+
+            oyuncular.forEach((o, index) => {
+                o.reyting = reytingHesapla(o);
+                
+                // Saha sekmesi listesi (Checkbox'lı)
+                let lbl = document.createElement("label");
+                lbl.className = "player-item";
+                lbl.innerHTML = `<input type="checkbox" value="${index}"> <span>${o.isim}</span> <span class="player-rating">${o.reyting}</span>`;
+                listMatch.appendChild(lbl);
+
+                // Yönetim sekmesi listesi (Tıklanabilir)
+                let div = document.createElement("div");
+                div.className = "player-item";
+                div.onclick = () => formuDoldur(index);
+                div.innerHTML = `<span>${o.isim}</span> <span class="player-rating">${o.reyting}</span>`;
+                listManage.appendChild(div);
+            });
+        }
+
+        // --- YÖNETİM İŞLEMLERİ ---
+        const ozellikler = ["isim", "hiz", "sut", "pas", "defans", "fizik", "yetenek", "takim_oyunu", "disiplin"];
+
+        function formuDoldur(index) {
+            seciliOyuncuIndex = index;
+            let o = oyuncular[index];
+            ozellikler.forEach(oz => document.getElementById("form-" + oz).value = o[oz]);
+        }
+
+        function formuTemizle() {
+            seciliOyuncuIndex = -1;
+            ozellikler.forEach(oz => document.getElementById("form-" + oz).value = "");
+            document.getElementById("form-isim").focus();
+        }
+
+        function oyuncuKaydet() {
+            let isim = document.getElementById("form-isim").value.trim();
+            if(!isim) { alert("İsim boş olamaz!"); return; }
+
+            let yeniVeri = { isim: isim };
+            let gecerli = true;
+
+            ozellikler.slice(1).forEach(oz => {
+                let val = parseInt(document.getElementById("form-" + oz).value);
+                if(isNaN(val) || val < 1 || val > 10) gecerli = false;
+                yeniVeri[oz] = val;
+            });
+
+            if(!gecerli) { alert("Lütfen tüm özellikleri 1 ile 10 arasında tam sayı olarak girin!"); return; }
+
+            // Güncelleme mi, Yeni Kayıt mı?
+            let mevcutIndex = oyuncular.findIndex(o => o.isim.toLowerCase() === isim.toLowerCase());
+            
+            if (mevcutIndex !== -1) {
+                oyuncular[mevcutIndex] = yeniVeri;
+                alert("Oyuncu başarıyla güncellendi!");
+            } else {
+                oyuncular.push(yeniVeri);
+                alert("Yeni oyuncu başarıyla eklendi!");
+            }
+            
+            verileriKaydet();
+            formuTemizle();
+        }
+
+        function oyuncuSil() {
+            if(seciliOyuncuIndex === -1) { alert("Önce listeden silinecek oyuncuyu seçin!"); return; }
+            if(confirm(`"${oyuncular[seciliOyuncuIndex].isim}" isimli oyuncuyu silmek istediğinize emin misiniz?`)) {
+                oyuncular.splice(seciliOyuncuIndex, 1);
+                verileriKaydet();
+                formuTemizle();
+            }
+        }
+
+        // --- SAHA ALGORİTMASI ---
         function getKombinasyonlar(dizi, boyut) {
             let sonuc = [];
             function yardimci(baslangic, secilenler) {
-                if (secilenler.length === boyut) {
-                    sonuc.push([...secilenler]);
-                    return;
-                }
+                if (secilenler.length === boyut) { sonuc.push([...secilenler]); return; }
                 for (let i = baslangic; i < dizi.length; i++) {
                     secilenler.push(dizi[i]);
                     yardimci(i + 1, secilenler);
@@ -157,95 +328,61 @@
             return sonuc;
         }
 
-        // Takım İstatistiklerini Hesaplama
         function istatistikHesapla(takim, ozellikler) {
             let toplam = 0;
-            takim.forEach(o => {
-                ozellikler.forEach(oz => toplam += o[oz]);
-            });
+            takim.forEach(o => ozellikler.forEach(oz => toplam += o[oz]));
             return (toplam / (takim.length * ozellikler.length)).toFixed(1);
         }
 
-        function takimGucuHesapla(takim) {
-            return takim.reduce((toplam, o) => toplam + parseFloat(o.reyting), 0);
-        }
+        function takimGucuHesapla(takim) { return takim.reduce((toplam, o) => toplam + parseFloat(o.reyting), 0); }
 
-        // Ana Algoritma ve Çizim Fonksiyonu
         function sahayaDiz() {
-            // Seçili checkbox'ları bul
-            let seciliIndexler = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
-            
-            if (seciliIndexler.length !== 10) {
-                alert(`Lütfen tam 10 kişi seçin! (Şu an ${seciliIndexler.length} seçili)`);
-                return;
-            }
+            let seciliIndexler = Array.from(document.querySelectorAll('#playerListMatch input:checked')).map(cb => parseInt(cb.value));
+            if (seciliIndexler.length !== 10) { alert(`Lütfen tam 10 kişi seçin! (Şu an ${seciliIndexler.length} seçili)`); return; }
 
             let secilenOyuncular = seciliIndexler.map(i => oyuncular[i]);
-            let toplamGuc = takimGucuHesapla(secilenOyuncular);
-            let hedefGuc = toplamGuc / 2;
-            
+            let hedefGuc = takimGucuHesapla(secilenOyuncular) / 2;
             let enIyiFark = Infinity;
-            let takimA = [];
-            let takimB = [];
+            let takimA = [], takimB = [];
 
-            // Tüm 5'li kombinasyonları dene
-            let kombinasyonlar = getKombinasyonlar(secilenOyuncular, 5);
-            
-            kombinasyonlar.forEach(adayA => {
-                let gucA = takimGucuHesapla(adayA);
-                let fark = Math.abs(hedefGuc - gucA);
-                
+            getKombinasyonlar(secilenOyuncular, 5).forEach(adayA => {
+                let fark = Math.abs(hedefGuc - takimGucuHesapla(adayA));
                 if (fark < enIyiFark) {
                     enIyiFark = fark;
                     takimA = adayA;
-                    // B takımını A'da olmayanlardan oluştur
                     takimB = secilenOyuncular.filter(o => !adayA.includes(o));
                 }
             });
-
             ekranaCiz(takimA, takimB);
         }
 
         function ekranaCiz(takimA, takimB) {
-            const hucum = ["sut", "hiz", "yetenek", "pas"];
-            const savunma = ["defans", "fizik", "disiplin", "takim_oyunu"];
-
-            // İstatistik Panellerini Doldur
-            const statsA = document.getElementById("statsA");
-            const statsB = document.getElementById("statsB");
+            const hucum = ["sut", "hiz", "yetenek", "pas"], savunma = ["defans", "fizik", "disiplin", "takim_oyunu"];
             
-            statsA.style.display = "block";
-            statsA.innerHTML = `<b style="color:#00D2D3">MAVİ TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimA).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimA, hucum)}<br>Savunma: ${istatistikHesapla(takimA, savunma)}`;
+            document.getElementById("statsA").style.display = "block";
+            document.getElementById("statsA").innerHTML = `<b style="color:#00D2D3">MAVİ TAKIM</b><br>Ort: ${takimGucuHesapla(takimA).toFixed(1)}<br>Hüc: ${istatistikHesapla(takimA, hucum)}<br>Sav: ${istatistikHesapla(takimA, savunma)}`;
             
-            statsB.style.display = "block";
-            statsB.innerHTML = `<b style="color:#FF9F43">TURUNCU TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimB).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimB, hucum)}<br>Savunma: ${istatistikHesapla(takimB, savunma)}`;
+            document.getElementById("statsB").style.display = "block";
+            document.getElementById("statsB").innerHTML = `<b style="color:#FF9F43">TURUNCU TAKIM</b><br>Ort: ${takimGucuHesapla(takimB).toFixed(1)}<br>Hüc: ${istatistikHesapla(takimB, hucum)}<br>Sav: ${istatistikHesapla(takimB, savunma)}`;
 
-            // Oyuncuları Sahaya Diz
             const layer = document.getElementById("playersLayer");
-            layer.innerHTML = ""; // Önceki çizimleri temizle
+            layer.innerHTML = ""; 
 
-            // Formasyon (X, Y) yüzdeleri
             const pozA = [{x: 12, y: 50}, {x: 28, y: 25}, {x: 28, y: 75}, {x: 42, y: 35}, {x: 42, y: 65}];
             const pozB = [{x: 88, y: 50}, {x: 72, y: 25}, {x: 72, y: 75}, {x: 58, y: 35}, {x: 58, y: 65}];
 
             takimA.forEach((o, i) => {
-                let p = document.createElement("div");
-                p.className = "player-dot team-a";
-                p.style.left = pozA[i].x + "%";
-                p.style.top = pozA[i].y + "%";
-                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
-                layer.appendChild(p);
+                layer.innerHTML += `<div class="player-dot team-a" style="left:${pozA[i].x}%; top:${pozA[i].y}%">
+                                      <div class="dot">${o.reyting}</div><div class="name">${o.isim}</div></div>`;
             });
-
             takimB.forEach((o, i) => {
-                let p = document.createElement("div");
-                p.className = "player-dot team-b";
-                p.style.left = pozB[i].x + "%";
-                p.style.top = pozB[i].y + "%";
-                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
-                layer.appendChild(p);
+                layer.innerHTML += `<div class="player-dot team-b" style="left:${pozB[i].x}%; top:${pozB[i].y}%">
+                                      <div class="dot">${o.reyting}</div><div class="name">${o.isim}</div></div>`;
             });
         }
+
+        // Uygulama başlarken listeyi doldur
+        listeleriGuncelle();
     </script>
 </body>
 </html>
