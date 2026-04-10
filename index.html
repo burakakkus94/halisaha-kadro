@@ -189,7 +189,7 @@
     </div>
 
     <script>
-        // --- VERİTABANI (LocalStorage Kullanımı) ---
+        // --- VERİTABANI VE GÜVENLİ YÜKLEME SİSTEMİ ---
         const varsayilanOyuncular = [
             {isim: "Fiko", hiz: 9, sut: 7, pas: 9, defans: 9, fizik: 10, yetenek: 9, takim_oyunu: 9, disiplin: 9},
             {isim: "Emir", hiz: 6, sut: 9, pas: 10, defans: 8, fizik: 7, yetenek: 10, takim_oyunu: 10, disiplin: 9},
@@ -210,15 +210,33 @@
             {isim: "Muhammed", hiz: 5, sut: 5, pas: 6, defans: 8, fizik: 5, yetenek: 6, takim_oyunu: 8, disiplin: 9}
         ];
 
-        let oyuncular = JSON.parse(localStorage.getItem('halisaha_verileri'));
-        
-        // Akıllı Kontrol: Eğer kullanıcı siteye ilk defa girmiyorsa ama yeni oyuncular listesinde yoksa onları otomatik ekle
-        if (!oyuncular) {
-            oyuncular = varsayilanOyuncular;
+        let oyuncular = [];
+
+        // Hata yakalayıcı blok (Geçmişteki bozuk verilerin sistemi çökertmesini önler)
+        try {
+            let kayitliVeri = localStorage.getItem('halisaha_verileri');
+            if (kayitliVeri) {
+                oyuncular = JSON.parse(kayitliVeri);
+            }
+            
+            // Eğer kaydedilen veri bir dizi (liste) değilse, bozulmuş demektir, sıfırla.
+            if (!Array.isArray(oyuncular)) {
+                oyuncular = [];
+            }
+        } catch (e) {
+            console.error("Tarayıcı hafızası okunurken hata oluştu, liste sıfırlanıyor:", e);
+            oyuncular = [];
+        }
+
+        // Akıllı Kontrol: Hafıza boşsa veya yeni kişiler eklendiyse senkronize et
+        if (oyuncular.length === 0) {
+            // Doğrudan eşitlemek yerine kopyasını alıyoruz (referans çakışmasını önler)
+            oyuncular = JSON.parse(JSON.stringify(varsayilanOyuncular));
         } else {
             varsayilanOyuncular.forEach(vo => {
-                if (!oyuncular.some(o => o.isim === vo.isim)) {
-                    oyuncular.push(vo);
+                // Eğer oyuncu listede yoksa sonradan ekle
+                if (!oyuncular.some(o => o && o.isim === vo.isim)) {
+                    oyuncular.push(JSON.parse(JSON.stringify(vo)));
                 }
             });
         }
@@ -253,6 +271,7 @@
             listManage.innerHTML = "";
 
             oyuncular.forEach((o, index) => {
+                if(!o) return; // Boş kayıtları atla
                 o.reyting = reytingHesapla(o);
                 
                 // Saha sekmesi listesi (Checkbox'lı)
@@ -301,7 +320,7 @@
             if(!gecerli) { alert("Lütfen tüm özellikleri 1 ile 10 arasında tam sayı olarak girin!"); return; }
 
             // Güncelleme mi, Yeni Kayıt mı?
-            let mevcutIndex = oyuncular.findIndex(o => o.isim.toLowerCase() === isim.toLowerCase());
+            let mevcutIndex = oyuncular.findIndex(o => o && o.isim.toLowerCase() === isim.toLowerCase());
             
             if (mevcutIndex !== -1) {
                 oyuncular[mevcutIndex] = yeniVeri;
@@ -392,8 +411,10 @@
             });
         }
 
-        // Uygulama başlarken listeyi doldur
-        listeleriGuncelle();
+        // Uygulama başlarken listeyi doldur (Sayfa yüklendiğinde çalışmasını garantiliyoruz)
+        window.onload = function() {
+            listeleriGuncelle();
+        };
     </script>
 </body>
 </html>
