@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kadro Mühendisi Pro - Web</title>
+    <style>
+        /* TEMA VE TASARIM (CSS) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1A1A24;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            height: 90vh;
+            gap: 20px;
+        }
+        .panel {
+            background-color: #252533;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .left-panel {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .right-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        h2 { margin-top: 0; color: #00D2D3; font-size: 24px; margin-bottom: 5px; }
+        .subtitle { color: #A0A0B0; font-size: 13px; margin-bottom: 20px; }
+        
+        /* Oyuncu Listesi (Checkboxes) */
+        .player-list { flex-grow: 1; overflow-y: auto; margin-bottom: 20px; background-color: #1E1E28; padding: 10px; border-radius: 8px; }
+        .player-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s;}
+        .player-item:hover { background-color: #2E8B57; }
+        .player-item input { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
+        .player-item span { font-size: 15px; font-weight: 500; }
+        .player-rating { margin-left: auto; color: #FFD700; font-weight: bold; }
+
+        /* Buton */
+        .btn {
+            background-color: #2E8B57; color: white; border: none; padding: 15px;
+            border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #1e6e43; }
+
+        /* Yeşil Saha (Pitch) */
+        .pitch {
+            background-color: #2E8B57; border: 4px solid #FFFFFF; border-radius: 10px;
+            flex-grow: 1; position: relative; overflow: hidden;
+        }
+        .line-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background-color: #FFFFFF; transform: translateX(-50%); }
+        .circle-center { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; border: 4px solid #FFFFFF; border-radius: 50%; transform: translate(-50%, -50%); }
+        .box-left { position: absolute; left: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-left: none; transform: translateY(-50%); }
+        .box-right { position: absolute; right: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-right: none; transform: translateY(-50%); }
+        
+        /* Oyuncular ve İstatistikler */
+        .stats { position: absolute; top: 15px; padding: 12px; background: rgba(0,0,0,0.6); border-radius: 8px; font-size: 14px; line-height: 1.5; z-index: 10; }
+        .stats-a { left: 15px; border-left: 4px solid #00D2D3; }
+        .stats-b { right: 15px; text-align: right; border-right: 4px solid #FF9F43; }
+        
+        .player-dot {
+            position: absolute; text-align: center; transform: translate(-50%, -50%); transition: all 0.5s ease;
+        }
+        .dot { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #FFFFFF; margin: 0 auto 5px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 12px;}
+        .team-a .dot { background-color: #00D2D3; color: black; }
+        .team-b .dot { background-color: #FF9F43; color: black; }
+        .name { font-size: 13px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+    <div class="panel left-panel">
+        <h2>KADRO SEÇİMİ</h2>
+        <div class="subtitle">Sahaya çıkacak 10 kişiyi seçin</div>
+        <div class="player-list" id="playerList">
+            </div>
+        <button class="btn" onclick="sahayaDiz()">⚽ SAHAYA DİZ</button>
+    </div>
+
+    <div class="panel right-panel">
+        <div class="pitch" id="pitch">
+            <div class="line-center"></div>
+            <div class="circle-center"></div>
+            <div class="box-left"></div>
+            <div class="box-right"></div>
+            
+            <div id="statsA" class="stats stats-a" style="display: none;"></div>
+            <div id="statsB" class="stats stats-b" style="display: none;"></div>
+            
+            <div id="playersLayer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Oyuncu Veritabanı
+        const oyuncular = [
+            {isim: "Fiko", hiz: 9, sut: 7, pas: 9, defans: 9, fizik: 10, yetenek: 9, takim_oyunu: 9, disiplin: 9},
+            {isim: "Emir", hiz: 6, sut: 9, pas: 10, defans: 8, fizik: 7, yetenek: 10, takim_oyunu: 10, disiplin: 9},
+            {isim: "Burak", hiz: 8, sut: 5, pas: 10, defans: 10, fizik: 8, yetenek: 9, takim_oyunu: 10, disiplin: 9},
+            {isim: "Okan", hiz: 7, sut: 10, pas: 9, defans: 6, fizik: 9, yetenek: 9, takim_oyunu: 9, disiplin: 9},
+            {isim: "Yako", hiz: 8, sut: 7, pas: 7, defans: 9, fizik: 9, yetenek: 8, takim_oyunu: 8, disiplin: 9},
+            {isim: "Emir JR.", hiz: 9, sut: 9, pas: 8, defans: 7, fizik: 8, yetenek: 9, takim_oyunu: 8, disiplin: 7},
+            {isim: "Emirhan", hiz: 8, sut: 4, pas: 6, defans: 9, fizik: 10, yetenek: 8, takim_oyunu: 9, disiplin: 9},
+            {isim: "Meriç", hiz: 8, sut: 8, pas: 7, defans: 8, fizik: 7, yetenek: 8, takim_oyunu: 9, disiplin: 8},
+            {isim: "Mito", hiz: 8, sut: 8, pas: 8, defans: 8, fizik: 6, yetenek: 8, takim_oyunu: 9, disiplin: 8},
+            {isim: "Ümit", hiz: 6, sut: 9, pas: 9, defans: 6, fizik: 10, yetenek: 9, takim_oyunu: 8, disiplin: 5},
+            {isim: "Emrah", hiz: 8, sut: 10, pas: 6, defans: 6, fizik: 7, yetenek: 9, takim_oyunu: 8, disiplin: 8},
+            {isim: "Eser", hiz: 7, sut: 7, pas: 7, defans: 8, fizik: 8, yetenek: 8, takim_oyunu: 7, disiplin: 8},
+            {isim: "Talip", hiz: 7, sut: 3, pas: 4, defans: 9, fizik: 8, yetenek: 5, takim_oyunu: 8, disiplin: 9},
+            {isim: "Yunus", hiz: 9, sut: 8, pas: 4, defans: 1, fizik: 8, yetenek: 8, takim_oyunu: 1, disiplin: 1},
+            {isim: "Burak İnci", hiz: 7, sut: 10, pas: 6, defans: 7, fizik: 8, yetenek: 6, takim_oyunu: 6, disiplin: 6}
+        ];
+
+        // Reytingleri Hesapla
+        oyuncular.forEach(o => {
+            let toplam = o.hiz + o.sut + o.pas + o.defans + o.fizik + o.yetenek + o.takim_oyunu + o.disiplin;
+            o.reyting = (toplam / 8).toFixed(1);
+        });
+
+        // Sol Panele Oyuncuları Listele
+        const listDiv = document.getElementById("playerList");
+        oyuncular.forEach((o, index) => {
+            let label = document.createElement("label");
+            label.className = "player-item";
+            label.innerHTML = `
+                <input type="checkbox" value="${index}">
+                <span>${o.isim}</span>
+                <span class="player-rating">${o.reyting}</span>
+            `;
+            listDiv.appendChild(label);
+        });
+
+        // Python'daki itertools.combinations'ın JavaScript karşılığı
+        function getKombinasyonlar(dizi, boyut) {
+            let sonuc = [];
+            function yardimci(baslangic, secilenler) {
+                if (secilenler.length === boyut) {
+                    sonuc.push([...secilenler]);
+                    return;
+                }
+                for (let i = baslangic; i < dizi.length; i++) {
+                    secilenler.push(dizi[i]);
+                    yardimci(i + 1, secilenler);
+                    secilenler.pop();
+                }
+            }
+            yardimci(0, []);
+            return sonuc;
+        }
+
+        // Takım İstatistiklerini Hesaplama
+        function istatistikHesapla(takim, ozellikler) {
+            let toplam = 0;
+            takim.forEach(o => {
+                ozellikler.forEach(oz => toplam += o[oz]);
+            });
+            return (toplam / (takim.length * ozellikler.length)).toFixed(1);
+        }
+
+        function takimGucuHesapla(takim) {
+            return takim.reduce((toplam, o) => toplam + parseFloat(o.reyting), 0);
+        }
+
+        // Ana Algoritma ve Çizim Fonksiyonu
+        function sahayaDiz() {
+            // Seçili checkbox'ları bul
+            let seciliIndexler = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
+            
+            if (seciliIndexler.length !== 10) {
+                alert(`Lütfen tam 10 kişi seçin! (Şu an ${seciliIndexler.length} seçili)`);
+                return;
+            }
+
+            let secilenOyuncular = seciliIndexler.map(i => oyuncular[i]);
+            let toplamGuc = takimGucuHesapla(secilenOyuncular);
+            let hedefGuc = toplamGuc / 2;
+            
+            let enIyiFark = Infinity;
+            let takimA = [];
+            let takimB = [];
+
+            // Tüm 5'li kombinasyonları dene
+            let kombinasyonlar = getKombinasyonlar(secilenOyuncular, 5);
+            
+            kombinasyonlar.forEach(adayA => {
+                let gucA = takimGucuHesapla(adayA);
+                let fark = Math.abs(hedefGuc - gucA);
+                
+                if (fark < enIyiFark) {
+                    enIyiFark = fark;
+                    takimA = adayA;
+                    // B takımını A'da olmayanlardan oluştur
+                    takimB = secilenOyuncular.filter(o => !adayA.includes(o));
+                }
+            });
+
+            ekranaCiz(takimA, takimB);
+        }
+
+        function ekranaCiz(takimA, takimB) {
+            const hucum = ["sut", "hiz", "yetenek", "pas"];
+            const savunma = ["defans", "fizik", "disiplin", "takim_oyunu"];
+
+            // İstatistik Panellerini Doldur
+            const statsA = document.getElementById("statsA");
+            const statsB = document.getElementById("statsB");
+            
+            statsA.style.display = "block";
+            statsA.innerHTML = `<b style="color:#00D2D3">MAVİ TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimA).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimA, hucum)}<br>Savunma: ${istatistikHesapla(takimA, savunma)}`;
+            
+            statsB.style.display = "block";
+            statsB.innerHTML = `<b style="color:#FF9F43">TURUNCU TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimB).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimB, hucum)}<br>Savunma: ${istatistikHesapla(takimB, savunma)}`;
+
+            // Oyuncuları Sahaya Diz
+            const layer = document.getElementById("playersLayer");
+            layer.innerHTML = ""; // Önceki çizimleri temizle
+
+            // Formasyon (X, Y) yüzdeleri
+            const pozA = [{x: 12, y: 50}, {x: 28, y: 25}, {x: 28, y: 75}, {x: 42, y: 35}, {x: 42, y: 65}];
+            const pozB = [{x: 88, y: 50}, {x: 72, y: 25}, {x: 72, y: 75}, {x: 58, y: 35}, {x: 58, y: 65}];
+
+            takimA.forEach((o, i) => {
+                let p = document.createElement("div");
+                p.className = "player-dot team-a";
+                p.style.left = pozA[i].x + "%";
+                p.style.top = pozA[i].y + "%";
+                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
+                layer.appendChild(p);
+            });
+
+            takimB.forEach((o, i) => {
+                let p = document.createElement("div");
+                p.className = "player-dot team-b";
+                p.style.left = pozB[i].x + "%";
+                p.style.top = pozB[i].y + "%";
+                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
+                layer.appendChild(p);
+            });
+        }
+    </script>
+</body>
+</html>
