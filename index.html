@@ -1,254 +1,644 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kadro Mühendisi Pro - Web</title>
-    <style>
-        /* TEMA VE TASARIM (CSS) */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1A1A24;
-            color: #FFFFFF;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            height: 90vh;
-            gap: 20px;
-        }
-        .panel {
-            background-color: #252533;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        .left-panel {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        .right-panel {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        h2 { margin-top: 0; color: #00D2D3; font-size: 24px; margin-bottom: 5px; }
-        .subtitle { color: #A0A0B0; font-size: 13px; margin-bottom: 20px; }
-        
-        /* Oyuncu Listesi (Checkboxes) */
-        .player-list { flex-grow: 1; overflow-y: auto; margin-bottom: 20px; background-color: #1E1E28; padding: 10px; border-radius: 8px; }
-        .player-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s;}
-        .player-item:hover { background-color: #2E8B57; }
-        .player-item input { margin-right: 12px; width: 18px; height: 18px; cursor: pointer; }
-        .player-item span { font-size: 15px; font-weight: 500; }
-        .player-rating { margin-left: auto; color: #FFD700; font-weight: bold; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kadro Mühendisi Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500&display=swap');
 
-        /* Buton */
-        .btn {
-            background-color: #2E8B57; color: white; border: none; padding: 15px;
-            border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn:hover { background-color: #1e6e43; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Yeşil Saha (Pitch) */
-        .pitch {
-            background-color: #2E8B57; border: 4px solid #FFFFFF; border-radius: 10px;
-            flex-grow: 1; position: relative; overflow: hidden;
-        }
-        .line-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background-color: #FFFFFF; transform: translateX(-50%); }
-        .circle-center { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; border: 4px solid #FFFFFF; border-radius: 50%; transform: translate(-50%, -50%); }
-        .box-left { position: absolute; left: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-left: none; transform: translateY(-50%); }
-        .box-right { position: absolute; right: 0; top: 50%; width: 100px; height: 200px; border: 4px solid #FFFFFF; border-right: none; transform: translateY(-50%); }
-        
-        /* Oyuncular ve İstatistikler */
-        .stats { position: absolute; top: 15px; padding: 12px; background: rgba(0,0,0,0.6); border-radius: 8px; font-size: 14px; line-height: 1.5; z-index: 10; }
-        .stats-a { left: 15px; border-left: 4px solid #00D2D3; }
-        .stats-b { right: 15px; text-align: right; border-right: 4px solid #FF9F43; }
-        
-        .player-dot {
-            position: absolute; text-align: center; transform: translate(-50%, -50%); transition: all 0.5s ease;
-        }
-        .dot { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #FFFFFF; margin: 0 auto 5px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 12px;}
-        .team-a .dot { background-color: #00D2D3; color: black; }
-        .team-b .dot { background-color: #FF9F43; color: black; }
-        .name { font-size: 13px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
-    </style>
+  :root {
+    --bg: #111318;
+    --surface: #1a1d24;
+    --surface2: #22262f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --teal: #1DB37E;
+    --teal-dim: #0e6e4c;
+    --teal-bg: rgba(29,179,126,0.1);
+    --amber: #F5A623;
+    --amber-dim: #a06a0f;
+    --amber-bg: rgba(245,166,35,0.1);
+    --blue: #4A9EFF;
+    --blue-bg: rgba(74,158,255,0.12);
+    --text: #f0f2f5;
+    --text2: #8b90a0;
+    --text3: #555b6e;
+    --pitch: #2a7a4a;
+    --pitch-light: #318a53;
+    --pitch-dark: #225e3a;
+    --font-head: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 0 4px;
+  }
+  header h1 {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+  header span {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: var(--font-head);
+    letter-spacing: .06em;
+  }
+
+  .main {
+    display: flex;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* LEFT PANEL */
+  .left {
+    width: 272px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+  }
+
+  .section-label {
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 430px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+  .player-list::-webkit-scrollbar { width: 4px; }
+  .player-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .p-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 0.5px solid transparent;
+    transition: background .15s, border-color .15s;
+    user-select: none;
+  }
+  .p-item:hover { background: var(--surface2); border-color: var(--border); }
+  .p-item.checked { background: rgba(29,179,126,0.08); border-color: rgba(29,179,126,0.35); }
+
+  .p-item input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--teal);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .p-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    font-family: var(--font-head);
+    letter-spacing: .02em;
+  }
+
+  .p-badges { display: flex; gap: 3px; align-items: center; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: var(--font-head);
+    letter-spacing: .03em;
+  }
+  .bd { background: var(--blue-bg); color: var(--blue); }
+  .ba { background: var(--amber-bg); color: var(--amber); }
+  .bo { background: var(--teal); color: #001a0d; font-size: 11px; padding: 2px 7px; border-radius: 5px; }
+
+  .sel-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 2px 2px;
+  }
+  .sel-text { font-size: 12px; color: var(--text2); font-family: var(--font-head); letter-spacing: .04em; }
+  .sel-text b { color: var(--teal); }
+
+  .dots-row { display: flex; gap: 3px; }
+  .dot-ind {
+    width: 18px; height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+    transition: background .2s;
+  }
+  .dot-ind.on { background: var(--teal); }
+
+  .btn-diz {
+    width: 100%;
+    background: var(--teal);
+    color: #001a0d;
+    border: none;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background .2s, transform .1s;
+  }
+  .btn-diz:hover { background: #25d494; }
+  .btn-diz:active { transform: scale(.98); }
+  .btn-diz:disabled {
+    background: var(--surface2);
+    color: var(--text3);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* RIGHT PANEL */
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: none;
+    gap: 10px;
+  }
+  .stat-card {
+    flex: 1;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 14px;
+  }
+  .stat-card.sa { border-left: 3px solid var(--teal); }
+  .stat-card.sb { border-left: 3px solid var(--amber); }
+
+  .stat-head {
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .sa .stat-head { color: var(--teal); }
+  .sb .stat-head { color: var(--amber); }
+
+  .stat-rows { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+  .srow { display: flex; align-items: center; gap: 8px; }
+  .srow-lbl { font-size: 11px; color: var(--text2); width: 80px; flex-shrink: 0; font-family: var(--font-head); letter-spacing: .04em; }
+  .srow-val-a { font-size: 11px; font-weight: 600; color: var(--teal); width: 28px; text-align: right; font-family: var(--font-head); }
+  .srow-val-b { font-size: 11px; font-weight: 600; color: var(--amber); width: 28px; font-family: var(--font-head); }
+  .bar-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+  .bfa { background: var(--teal); }
+  .bfb { background: var(--amber); }
+
+  .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--font-head);
+    letter-spacing: .02em;
+  }
+  .chip-a { background: rgba(29,179,126,0.15); color: var(--teal); }
+  .chip-b { background: rgba(245,166,35,0.15); color: var(--amber); }
+
+  /* PITCH */
+  .pitch-wrap {
+    flex: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 0.5px solid var(--border);
+    position: relative;
+    min-height: 460px;
+    background: var(--pitch);
+  }
+
+  /* Striped pitch pattern */
+  .pitch-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 48px,
+      rgba(0,0,0,0.07) 48px,
+      rgba(0,0,0,0.07) 96px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pitch-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .players-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .empty-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: rgba(255,255,255,.3);
+    z-index: 3;
+  }
+  .empty-icon { font-size: 44px; opacity: .35; }
+  .empty-text { font-family: var(--font-head); font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+
+  .player-dot {
+    position: absolute;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    transition: all .5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .dot-ring {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 5px;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    position: relative;
+  }
+  .dot-a .dot-ring { background: var(--teal-dim); box-shadow: 0 0 0 3px rgba(29,179,126,.25); }
+  .dot-b .dot-ring { background: var(--amber-dim); box-shadow: 0 0 0 3px rgba(245,166,35,.25); }
+
+  /* Position badge on dot */
+  .dot-pos {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    font-size: 8px;
+    font-weight: 700;
+    font-family: var(--font-head);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--bg);
+  }
+  .pos-def { background: var(--blue); color: #001233; }
+  .pos-mid { background: #c084fc; color: #2d0060; }
+  .pos-att { background: var(--amber); color: #2d1100; }
+  .pos-gk  { background: #f87171; color: #3b0000; }
+
+  .dot-name {
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    background: rgba(10,14,20,.75);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+</style>
 </head>
 <body>
 
-    <div class="panel left-panel">
-        <h2>KADRO SEÇİMİ</h2>
-        <div class="subtitle">Sahaya çıkacak 10 kişiyi seçin</div>
-        <div class="player-list" id="playerList">
-            </div>
-        <button class="btn" onclick="sahayaDiz()">⚽ SAHAYA DİZ</button>
-    </div>
+<header>
+  <h1>Kadro Mühendisi Pro</h1>
+  <span>· 5v5 Denge Algoritması</span>
+</header>
 
-    <div class="panel right-panel">
-        <div class="pitch" id="pitch">
-            <div class="line-center"></div>
-            <div class="circle-center"></div>
-            <div class="box-left"></div>
-            <div class="box-right"></div>
-            
-            <div id="statsA" class="stats stats-a" style="display: none;"></div>
-            <div id="statsB" class="stats stats-b" style="display: none;"></div>
-            
-            <div id="playersLayer"></div>
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="card">
+      <div class="section-label">Oyuncu Seçimi</div>
+      <div class="player-list" id="playerList"></div>
+      <div class="sel-info" style="margin-top:10px">
+        <span class="sel-text">Seçili: <b id="selCount">0</b> / 10</span>
+        <div class="dots-row" id="dotsRow"></div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-diz" id="dizBtn" onclick="sahayaDiz()" disabled>⚽ Sahaya Diz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card sa" id="statsA"></div>
+      <div class="stat-card sb" id="statsB"></div>
+    </div>
+    <div class="pitch-wrap" id="pitchWrap">
+      <svg class="pitch-svg" viewBox="0 0 800 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- center line -->
+        <line x1="400" y1="0" x2="400" y2="500" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+        <!-- center circle -->
+        <circle cx="400" cy="250" r="72" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+        <circle cx="400" cy="250" r="5" fill="rgba(255,255,255,.5)"/>
+        <!-- penalty areas -->
+        <rect x="0" y="148" width="88" height="204" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+        <rect x="712" y="148" width="88" height="204" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+        <!-- goal areas -->
+        <rect x="0" y="200" width="32" height="100" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+        <rect x="768" y="200" width="32" height="100" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+        <!-- corner arcs -->
+        <path d="M0 480 Q20 480 20 500" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+        <path d="M800 480 Q780 480 780 500" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+        <path d="M0 20 Q20 20 20 0" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+        <path d="M800 20 Q780 20 780 0" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+      </svg>
+      <div class="players-layer" id="playersLayer">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">⚽</div>
+          <div class="empty-text">10 oyuncu seçin ve sahaya dizin</div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Oyuncu Veritabanı
-        const oyuncular = [
-            {isim: "Fiko", hiz: 9, sut: 8, pas: 8, defans: 8, fizik: 10, yetenek: 8, takim_oyunu: 9, disiplin: 9},
-            {isim: "Yako", hiz: 8, sut: 7, pas: 7, defans: 9, fizik: 10, yetenek: 8, takim_oyunu: 9, disiplin: 9},
-            {isim: "Burak", hiz: 8, sut: 5, pas: 10, defans: 10, fizik: 8, yetenek: 9, takim_oyunu: 10, disiplin: 9},
-            {isim: "Okan", hiz: 6, sut: 10, pas: 9, defans: 6, fizik: 9, yetenek: 9, takim_oyunu: 9, disiplin: 9},
-            {isim: "Emir JR.", hiz: 8, sut: 9, pas: 8, defans: 7, fizik: 8, yetenek: 9, takim_oyunu: 7, disiplin: 7},
-            {isim: "Meriç", hiz: 8, sut: 7, pas: 7, defans: 8, fizik: 6, yetenek: 7, takim_oyunu: 8, disiplin: 8},
-            {isim: "Mito", hiz: 8, sut: 8, pas: 8, defans: 8, fizik: 7, yetenek: 7, takim_oyunu: 9, disiplin: 8},
-            {isim: "Ümit", hiz: 6, sut: 8, pas: 8, defans: 6, fizik: 10, yetenek: 8, takim_oyunu: 8, disiplin: 5},
-            {isim: "Ahmet Kaan", hiz: 8, sut: 5, pas: 6, defans: 8, fizik: 9, yetenek: 5, takim_oyunu: 8, disiplin: 8},
-            {isim: "Muhammed", hiz: 5, sut: 5, pas: 6, defans: 8, fizik: 5, yetenek: 6, takim_oyunu: 8, disiplin: 9},
-            {isim: "Talip", hiz: 7, sut: 4, pas: 5, defans: 10, fizik: 8, yetenek: 5, takim_oyunu: 8, disiplin: 9},
-            {isim: "Burak İnci", hiz: 7, sut: 10, pas: 6, defans: 7, fizik: 8, yetenek: 6, takim_oyunu: 7, disiplin: 7},
-			{isim: "Yunus", hiz: 9, sut: 8, pas: 4, defans: 3, fizik: 9, yetenek: 6, takim_oyunu: 1, disiplin: 1},
-            {isim: "Emrah", hiz: 7, sut: 9, pas: 6, defans: 5, fizik: 7, yetenek: 8, takim_oyunu: 7, disiplin: 7},
-            {isim: "Eser", hiz: 7, sut: 7, pas: 7, defans: 8, fizik: 8, yetenek: 7, takim_oyunu: 7, disiplin: 7},
-            {isim: "Emir", hiz: 6, sut: 9, pas: 10, defans: 7, fizik: 7, yetenek: 10, takim_oyunu: 9, disiplin: 9},
-	        {isim: "Batu", hiz: 6, sut: 7, pas: 7, defans: 6, fizik: 7, yetenek: 8, takim_oyunu: 9, disiplin: 9},	
-		
-        ];
+</div>
 
-        // Reytingleri Hesapla
-        oyuncular.forEach(o => {
-            let toplam = o.hiz + o.sut + o.pas + o.defans + o.fizik + o.yetenek + o.takim_oyunu + o.disiplin;
-            o.reyting = (toplam / 8).toFixed(1);
-        });
+<script>
+const oyuncular = [
+  {isim:"Fiko",     hiz:9, sut:8, pas:8, defans:8,  fizik:10,yetenek:8, takim_oyunu:9, disiplin:9},
+  {isim:"Yako",     hiz:8, sut:7, pas:7, defans:9,  fizik:10,yetenek:8, takim_oyunu:9, disiplin:9},
+  {isim:"Burak",    hiz:8, sut:5, pas:10,defans:10, fizik:8, yetenek:9, takim_oyunu:10,disiplin:9},
+  {isim:"Okan",     hiz:6, sut:10,pas:9, defans:6,  fizik:9, yetenek:9, takim_oyunu:9, disiplin:9},
+  {isim:"Emir JR.", hiz:8, sut:9, pas:8, defans:7,  fizik:8, yetenek:9, takim_oyunu:7, disiplin:7},
+  {isim:"Meriç",    hiz:8, sut:7, pas:7, defans:8,  fizik:6, yetenek:7, takim_oyunu:8, disiplin:8},
+  {isim:"Mito",     hiz:8, sut:8, pas:8, defans:8,  fizik:7, yetenek:7, takim_oyunu:9, disiplin:8},
+  {isim:"Ümit",     hiz:6, sut:8, pas:8, defans:6,  fizik:10,yetenek:8, takim_oyunu:8, disiplin:5},
+  {isim:"Ahmet Kaan",hiz:8,sut:5, pas:6, defans:8,  fizik:9, yetenek:5, takim_oyunu:8, disiplin:8},
+  {isim:"Muhammed", hiz:5, sut:5, pas:6, defans:8,  fizik:5, yetenek:6, takim_oyunu:8, disiplin:9},
+  {isim:"Talip",    hiz:7, sut:4, pas:5, defans:10, fizik:8, yetenek:5, takim_oyunu:8, disiplin:9},
+  {isim:"Burak İnci",hiz:7,sut:10,pas:6, defans:7,  fizik:8, yetenek:6, takim_oyunu:7, disiplin:7},
+  {isim:"Yunus",    hiz:9, sut:8, pas:4, defans:3,  fizik:9, yetenek:6, takim_oyunu:1, disiplin:1},
+  {isim:"Emrah",    hiz:7, sut:9, pas:6, defans:5,  fizik:7, yetenek:8, takim_oyunu:7, disiplin:7},
+  {isim:"Eser",     hiz:7, sut:7, pas:7, defans:8,  fizik:8, yetenek:7, takim_oyunu:7, disiplin:7},
+  {isim:"Emir",     hiz:6, sut:9, pas:10,defans:7,  fizik:7, yetenek:10,takim_oyunu:9, disiplin:9},
+  {isim:"Batu",     hiz:6, sut:7, pas:7, defans:6,  fizik:7, yetenek:8, takim_oyunu:9, disiplin:9},
+];
 
-        // Sol Panele Oyuncuları Listele
-        const listDiv = document.getElementById("playerList");
-        oyuncular.forEach((o, index) => {
-            let label = document.createElement("label");
-            label.className = "player-item";
-            label.innerHTML = `
-                <input type="checkbox" value="${index}">
-                <span>${o.isim}</span>
-                <span class="player-rating">${o.reyting}</span>
-            `;
-            listDiv.appendChild(label);
-        });
+// Puanları hesapla
+oyuncular.forEach(o => {
+  const att = (o.hiz + o.sut + o.yetenek + o.pas) / 4;
+  const def = (o.defans + o.fizik + o.takim_oyunu + o.disiplin) / 4;
+  o.att = parseFloat(att.toFixed(1));
+  o.def = parseFloat(def.toFixed(1));
+  o.reyting = parseFloat(((att + def) / 2).toFixed(1));
+  // Pozisyon: defans ağırlığına göre
+  o.defRatio = def / (att + def);
+});
 
-        // Python'daki itertools.combinations'ın JavaScript karşılığı
-        function getKombinasyonlar(dizi, boyut) {
-            let sonuc = [];
-            function yardimci(baslangic, secilenler) {
-                if (secilenler.length === boyut) {
-                    sonuc.push([...secilenler]);
-                    return;
-                }
-                for (let i = baslangic; i < dizi.length; i++) {
-                    secilenler.push(dizi[i]);
-                    yardimci(i + 1, secilenler);
-                    secilenler.pop();
-                }
-            }
-            yardimci(0, []);
-            return sonuc;
-        }
+// Pozisyon belirle (5 kişilik takımda: 1 GK, 2 DEF, 1 MID, 1 ATT)
+// defRatio > 0.58 → DEF, 0.48-0.58 → MID, < 0.48 → ATT
+// En yüksek defRatio'ya sahip → GK (en savunmacı)
+function assignPositions(team) {
+  const sorted = [...team].sort((a, b) => b.defRatio - a.defRatio);
+  // GK: en savunmacı
+  sorted[0].pos = 'GK';
+  sorted[1].pos = 'DEF';
+  sorted[2].pos = 'DEF';
+  sorted[3].pos = 'MID';
+  sorted[4].pos = 'ATT';
+  // Hafıza: orijinal takım sırasını koru
+  team.forEach(o => { o.pos = sorted.find(s => s.isim === o.isim).pos; });
+}
 
-        // Takım İstatistiklerini Hesaplama
-        function istatistikHesapla(takim, ozellikler) {
-            let toplam = 0;
-            takim.forEach(o => {
-                ozellikler.forEach(oz => toplam += o[oz]);
-            });
-            return (toplam / (takim.length * ozellikler.length)).toFixed(1);
-        }
+// Pozisyona göre koordinat (sol takım, yüzde)
+// [left%, top%]
+const posCoordA = {
+  GK:  {x: 7,  y: 50},
+  DEF: [{x: 22, y: 25}, {x: 22, y: 75}],
+  MID: {x: 38, y: 50},
+  ATT: {x: 44, y: 50},
+};
+const posCoordB = {
+  GK:  {x: 93, y: 50},
+  DEF: [{x: 78, y: 25}, {x: 78, y: 75}],
+  MID: {x: 62, y: 50},
+  ATT: {x: 56, y: 50},
+};
 
-        function takimGucuHesapla(takim) {
-            return takim.reduce((toplam, o) => toplam + parseFloat(o.reyting), 0);
-        }
+function getCoords(team, side) {
+  const coords = side === 'A' ? posCoordA : posCoordB;
+  const result = [];
+  let defCount = 0;
+  team.forEach(o => {
+    if (o.pos === 'GK')  result.push({o, ...coords.GK});
+    else if (o.pos === 'DEF') { result.push({o, ...coords.DEF[defCount++]}); }
+    else if (o.pos === 'MID') result.push({o, ...coords.MID});
+    else if (o.pos === 'ATT') result.push({o, ...coords.ATT});
+  });
+  return result;
+}
 
-        // Ana Algoritma ve Çizim Fonksiyonu
-        function sahayaDiz() {
-            // Seçili checkbox'ları bul
-            let seciliIndexler = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
-            
-            if (seciliIndexler.length !== 10) {
-                alert(`Lütfen tam 10 kişi seçin! (Şu an ${seciliIndexler.length} seçili)`);
-                return;
-            }
+const posColors = { GK: 'pos-def', DEF: 'pos-def', MID: 'pos-mid', ATT: 'pos-att' };
 
-            let secilenOyuncular = seciliIndexler.map(i => oyuncular[i]);
-            let toplamGuc = takimGucuHesapla(secilenOyuncular);
-            let hedefGuc = toplamGuc / 2;
-            
-            let enIyiFark = Infinity;
-            let takimA = [];
-            let takimB = [];
+// UI oluştur
+const listDiv = document.getElementById("playerList");
+const dotsRow = document.getElementById("dotsRow");
 
-            // Tüm 5'li kombinasyonları dene
-            let kombinasyonlar = getKombinasyonlar(secilenOyuncular, 5);
-            
-            kombinasyonlar.forEach(adayA => {
-                let gucA = takimGucuHesapla(adayA);
-                let fark = Math.abs(hedefGuc - gucA);
-                
-                if (fark < enIyiFark) {
-                    enIyiFark = fark;
-                    takimA = adayA;
-                    // B takımını A'da olmayanlardan oluştur
-                    takimB = secilenOyuncular.filter(o => !adayA.includes(o));
-                }
-            });
+for (let i = 0; i < 10; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot-ind';
+  dotsRow.appendChild(d);
+}
 
-            ekranaCiz(takimA, takimB);
-        }
+oyuncular.forEach((o, i) => {
+  const el = document.createElement("label");
+  el.className = "p-item";
+  el.innerHTML = `
+    <input type="checkbox" value="${i}" onchange="updateSel()">
+    <span class="p-name">${o.isim}</span>
+    <div class="p-badges">
+      <span class="badge bd">DEF ${o.def}</span>
+      <span class="badge ba">ATK ${o.att}</span>
+      <span class="badge bo">${o.reyting}</span>
+    </div>`;
+  listDiv.appendChild(el);
+});
 
-        function ekranaCiz(takimA, takimB) {
-            const hucum = ["sut", "hiz", "yetenek", "pas"];
-            const savunma = ["defans", "fizik", "disiplin", "takim_oyunu"];
+function updateSel() {
+  const checked = document.querySelectorAll('input[type=checkbox]:checked');
+  const n = checked.length;
+  document.getElementById("selCount").textContent = n;
+  document.getElementById("dizBtn").disabled = n !== 10;
+  document.querySelectorAll('.p-item').forEach(el => {
+    el.classList.toggle('checked', el.querySelector('input').checked);
+  });
+  document.querySelectorAll('.dot-ind').forEach((d, i) => {
+    d.classList.toggle('on', i < n);
+  });
+}
 
-            // İstatistik Panellerini Doldur
-            const statsA = document.getElementById("statsA");
-            const statsB = document.getElementById("statsB");
-            
-            statsA.style.display = "block";
-            statsA.innerHTML = `<b style="color:#00D2D3">MAVİ TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimA).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimA, hucum)}<br>Savunma: ${istatistikHesapla(takimA, savunma)}`;
-            
-            statsB.style.display = "block";
-            statsB.innerHTML = `<b style="color:#FF9F43">TURUNCU TAKIM</b><br>Ortalama: ${takimGucuHesapla(takimB).toFixed(1)}<br>Hücum: ${istatistikHesapla(takimB, hucum)}<br>Savunma: ${istatistikHesapla(takimB, savunma)}`;
+// Kombinasyon
+function getCombinations(arr, k) {
+  const res = [];
+  function go(start, cur) {
+    if (cur.length === k) { res.push([...cur]); return; }
+    for (let i = start; i < arr.length; i++) { cur.push(arr[i]); go(i+1, cur); cur.pop(); }
+  }
+  go(0, []);
+  return res;
+}
 
-            // Oyuncuları Sahaya Diz
-            const layer = document.getElementById("playersLayer");
-            layer.innerHTML = ""; // Önceki çizimleri temizle
+function teamScore(team) { return team.reduce((s, o) => s + o.reyting, 0); }
+function avg(team, key) { return (team.reduce((s, o) => s + o[key], 0) / team.length).toFixed(1); }
 
-            // Formasyon (X, Y) yüzdeleri
-            const pozA = [{x: 12, y: 50}, {x: 28, y: 25}, {x: 28, y: 75}, {x: 42, y: 35}, {x: 42, y: 65}];
-            const pozB = [{x: 88, y: 50}, {x: 72, y: 25}, {x: 72, y: 75}, {x: 58, y: 35}, {x: 58, y: 65}];
+function sahayaDiz() {
+  const idxs = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
+  if (idxs.length !== 10) return;
 
-            takimA.forEach((o, i) => {
-                let p = document.createElement("div");
-                p.className = "player-dot team-a";
-                p.style.left = pozA[i].x + "%";
-                p.style.top = pozA[i].y + "%";
-                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
-                layer.appendChild(p);
-            });
+  const sel = idxs.map(i => oyuncular[i]);
+  const total = teamScore(sel);
+  const target = total / 2;
+  let bestDiff = Infinity, tA = [], tB = [];
 
-            takimB.forEach((o, i) => {
-                let p = document.createElement("div");
-                p.className = "player-dot team-b";
-                p.style.left = pozB[i].x + "%";
-                p.style.top = pozB[i].y + "%";
-                p.innerHTML = `<div class="dot">${o.reyting}</div><div class="name">${o.isim}</div>`;
-                layer.appendChild(p);
-            });
-        }
-    </script>
+  getCombinations(sel, 5).forEach(cA => {
+    const diff = Math.abs(target - teamScore(cA));
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      tA = cA;
+      tB = sel.filter(o => !cA.includes(o));
+    }
+  });
+
+  assignPositions(tA);
+  assignPositions(tB);
+  draw(tA, tB);
+}
+
+function barPair(lbl, va, vb, max) {
+  const pa = Math.round((parseFloat(va) / max) * 100);
+  const pb = Math.round((parseFloat(vb) / max) * 100);
+  return `
+    <div class="srow">
+      <span class="srow-lbl">${lbl}</span>
+      <span class="srow-val-a">${va}</span>
+      <div class="bar-track"><div class="bar-fill bfa" style="width:${pa}%"></div></div>
+      <div class="bar-track"><div class="bar-fill bfb" style="width:${pb}%"></div></div>
+      <span class="srow-val-b">${vb}</span>
+    </div>`;
+}
+
+function draw(tA, tB) {
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("statsBar").style.display = "flex";
+
+  const sA = teamScore(tA).toFixed(1), sB = teamScore(tB).toFixed(1);
+  const dA = avg(tA, 'def'), dB = avg(tB, 'def');
+  const aA = avg(tA, 'att'), aB = avg(tB, 'att');
+  const maxS = Math.max(parseFloat(sA), parseFloat(sB)) * 1.05;
+
+  document.getElementById("statsA").innerHTML = `
+    <div class="stat-head">Mavi Takım</div>
+    <div class="stat-rows">
+      ${barPair("Toplam güç", sA, sB, maxS)}
+      ${barPair("Defans", dA, dB, 10)}
+      ${barPair("Hücum", aA, aB, 10)}
+    </div>
+    <div class="chips">${tA.map(o => `<span class="chip chip-a">${o.isim}</span>`).join('')}</div>`;
+
+  document.getElementById("statsB").innerHTML = `
+    <div class="stat-head">Turuncu Takım</div>
+    <div class="stat-rows">
+      <div class="srow"><span class="srow-lbl">Toplam güç</span><span class="srow-val-b">${sB}</span></div>
+      <div class="srow"><span class="srow-lbl">Defans</span><span class="srow-val-b">${dB}</span></div>
+      <div class="srow"><span class="srow-lbl">Hücum</span><span class="srow-val-b">${aB}</span></div>
+    </div>
+    <div class="chips">${tB.map(o => `<span class="chip chip-b">${o.isim}</span>`).join('')}</div>`;
+
+  const layer = document.getElementById("playersLayer");
+  layer.innerHTML = "";
+
+  const coordsA = getCoords(tA, 'A');
+  const coordsB = getCoords(tB, 'B');
+
+  [...coordsA, ...coordsB].forEach(({o, x, y}, idx) => {
+    const side = idx < coordsA.length ? 'a' : 'b';
+    const d = document.createElement("div");
+    d.className = `player-dot dot-${side}`;
+    d.style.left = x + "%";
+    d.style.top  = y + "%";
+    d.innerHTML = `
+      <div class="dot-ring">
+        ${o.reyting}
+        <span class="dot-pos ${posColors[o.pos]}">${o.pos === 'GK' ? 'DEF' : o.pos}</span>
+      </div>
+      <div class="dot-name">${o.isim}</div>`;
+    layer.appendChild(d);
+  });
+}
+</script>
 </body>
 </html>
