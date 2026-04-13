@@ -573,6 +573,16 @@ function sahayaDiz() {
   draw(tA, tB);
 }
 
+function barSingleA(lbl, v, max) {
+  const p = Math.round((parseFloat(v) / max) * 100);
+  return `
+    <div class="srow">
+      <span class="srow-lbl">${lbl}</span>
+      <span class="srow-val-a">${v}</span>
+      <div class="bar-track"><div class="bar-fill bfa" style="width:${p}%"></div></div>
+    </div>`;
+}
+
 function barSingle(lbl, v, max) {
   const p = Math.round((parseFloat(v) / max) * 100);
   return `
@@ -608,9 +618,9 @@ function draw(tA, tB) {
   document.getElementById("statsA").innerHTML = `
     <div class="stat-head">Mavi Takım</div>
     <div class="stat-rows">
-      ${barPair("Toplam güç", sA, sB, maxS)}
-      ${barPair("Defans", dA, dB, 10)}
-      ${barPair("Hücum", aA, aB, 10)}
+      ${barSingleA("Toplam güç", sA, maxS)}
+      ${barSingleA("Defans", dA, 10)}
+      ${barSingleA("Hücum", aA, 10)}
     </div>
     <div class="chips">${tA.map(o => `<span class="chip chip-a">${o.isim}</span>`).join('')}</div>`;
 
