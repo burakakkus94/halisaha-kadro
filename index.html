@@ -104,13 +104,7 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    max-height: 430px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border2) transparent;
   }
-  .player-list::-webkit-scrollbar { width: 4px; }
-  .player-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
   .p-item {
     display: flex;
@@ -243,7 +237,8 @@
   .bfa { background: var(--teal); }
   .bfb { background: var(--amber); }
 
-  .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 4px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
   .chip {
     font-size: 10px;
     font-weight: 600;
@@ -578,6 +573,16 @@ function sahayaDiz() {
   draw(tA, tB);
 }
 
+function barSingle(lbl, v, max) {
+  const p = Math.round((parseFloat(v) / max) * 100);
+  return `
+    <div class="srow">
+      <span class="srow-lbl">${lbl}</span>
+      <span class="srow-val-b">${v}</span>
+      <div class="bar-track"><div class="bar-fill bfb" style="width:${p}%"></div></div>
+    </div>`;
+}
+
 function barPair(lbl, va, vb, max) {
   const pa = Math.round((parseFloat(va) / max) * 100);
   const pb = Math.round((parseFloat(vb) / max) * 100);
@@ -612,9 +617,9 @@ function draw(tA, tB) {
   document.getElementById("statsB").innerHTML = `
     <div class="stat-head">Turuncu Takım</div>
     <div class="stat-rows">
-      <div class="srow"><span class="srow-lbl">Toplam güç</span><span class="srow-val-b">${sB}</span></div>
-      <div class="srow"><span class="srow-lbl">Defans</span><span class="srow-val-b">${dB}</span></div>
-      <div class="srow"><span class="srow-lbl">Hücum</span><span class="srow-val-b">${aB}</span></div>
+      ${barSingle("Toplam güç", sB, maxS)}
+      ${barSingle("Defans", dB, 10)}
+      ${barSingle("Hücum", aB, 10)}
     </div>
     <div class="chips">${tB.map(o => `<span class="chip chip-b">${o.isim}</span>`).join('')}</div>`;
 
