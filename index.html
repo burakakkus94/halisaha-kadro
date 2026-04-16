@@ -534,6 +534,14 @@ function updateSel() {
   document.querySelectorAll('.dot-ind').forEach((d, i) => {
     d.classList.toggle('on', i < n);
   });
+  // Seçim değişince kadro listesini sıfırla (sahayaDiz içinde de yapılıyor ama anlık butonu da güncelle)
+  const idxs = Array.from(checked).map(cb => parseInt(cb.value));
+  const idxKey = [...idxs].sort().join(',');
+  const oncekiKey = [...sonSeciliIdxs].sort().join(',');
+  if (idxKey !== oncekiKey) {
+    kadroListesi = [];
+    kadroIndeks = 0;
+  }
 }
 
 // Kombinasyon
@@ -550,27 +558,59 @@ function getCombinations(arr, k) {
 function teamScore(team) { return team.reduce((s, o) => s + o.reyting, 0); }
 function avg(team, key) { return (team.reduce((s, o) => s + o[key], 0) / team.length).toFixed(1); }
 
+// Mevcut kadro havuzu ve indeks
+let kadroListesi = [];
+let kadroIndeks = 0;
+let sonSeciliIdxs = [];
+
 function sahayaDiz() {
   const idxs = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
   if (idxs.length !== 10) return;
 
-  const sel = idxs.map(i => oyuncular[i]);
-  const total = teamScore(sel);
-  const target = total / 2;
-  let bestDiff = Infinity, tA = [], tB = [];
+  // Seçim değiştiyse listeyi sıfırla
+  const idxKey = [...idxs].sort().join(',');
+  const oncekiKey = [...sonSeciliIdxs].sort().join(',');
+  if (idxKey !== oncekiKey) {
+    sonSeciliIdxs = idxs;
+    kadroIndeks = 0;
 
-  getCombinations(sel, 5).forEach(cA => {
-    const diff = Math.abs(target - teamScore(cA));
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      tA = cA;
-      tB = sel.filter(o => !cA.includes(o));
-    }
-  });
+    const sel = idxs.map(i => oyuncular[i]);
+    const total = teamScore(sel);
+    const target = total / 2;
 
+    // Tüm kombinasyonları hesapla, fark sırala
+    const tumKadrolar = [];
+    getCombinations(sel, 5).forEach(cA => {
+      const diff = Math.abs(target - teamScore(cA));
+      tumKadrolar.push({ cA, cB: sel.filter(o => !cA.includes(o)), diff });
+    });
+    tumKadrolar.sort((a, b) => a.diff - b.diff);
+
+    // Tekrarları önle: cA seti benzersiz olsun (cA ve cB yer değişimi de aynı kadro sayılır)
+    const gorulenler = new Set();
+    kadroListesi = [];
+    tumKadrolar.forEach(({ cA, cB, diff }) => {
+      const keyA = [...cA].map(o => o.isim).sort().join('|');
+      const keyB = [...cB].map(o => o.isim).sort().join('|');
+      const key = [keyA, keyB].sort().join('//');
+      if (!gorulenler.has(key)) {
+        gorulenler.add(key);
+        kadroListesi.push({ cA, cB, diff });
+      }
+    });
+  }
+
+  if (kadroListesi.length === 0) return;
+
+  const { cA, cB } = kadroListesi[kadroIndeks];
+  const tA = [...cA], tB = [...cB];
   assignPositions(tA);
   assignPositions(tB);
-  draw(tA, tB);
+
+  const sonraki = kadroIndeks + 1;
+  draw(tA, tB, kadroIndeks + 1, kadroListesi.length, kadroListesi[kadroIndeks].diff);
+
+  kadroIndeks = sonraki < kadroListesi.length ? sonraki : 0;
 }
 
 function barSingleA(lbl, v, max) {
@@ -606,7 +646,7 @@ function barPair(lbl, va, vb, max) {
     </div>`;
 }
 
-function draw(tA, tB) {
+function draw(tA, tB, kadroNo, toplamKadro, diff) {
   document.getElementById("emptyState").style.display = "none";
   document.getElementById("statsBar").style.display = "flex";
 
@@ -616,7 +656,7 @@ function draw(tA, tB) {
   const maxS = Math.max(parseFloat(sA), parseFloat(sB)) * 1.05;
 
   document.getElementById("statsA").innerHTML = `
-    <div class="stat-head">Mavi Takım</div>
+    <div class="stat-head">Mavi Takım <span style="font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.02em;text-transform:none;margin-left:6px">Kadro ${kadroNo}/${toplamKadro} · fark ${parseFloat(diff).toFixed(1)}</span></div>
     <div class="stat-rows">
       ${barSingleA("Toplam güç", sA, maxS)}
       ${barSingleA("Defans", dA, 10)}
