@@ -534,14 +534,9 @@ function updateSel() {
   document.querySelectorAll('.dot-ind').forEach((d, i) => {
     d.classList.toggle('on', i < n);
   });
-  // Seçim değişince kadro listesini sıfırla (sahayaDiz içinde de yapılıyor ama anlık butonu da güncelle)
-  const idxs = Array.from(checked).map(cb => parseInt(cb.value));
-  const idxKey = [...idxs].sort().join(',');
-  const oncekiKey = [...sonSeciliIdxs].sort().join(',');
-  if (idxKey !== oncekiKey) {
-    kadroListesi = [];
-    kadroIndeks = 0;
-  }
+  // Seçim her değiştiğinde kadro listesini sıfırla
+  kadroListesi = [];
+  kadroIndeks = 0;
 }
 
 // Kombinasyon
@@ -561,24 +556,17 @@ function avg(team, key) { return (team.reduce((s, o) => s + o[key], 0) / team.le
 // Mevcut kadro havuzu ve indeks
 let kadroListesi = [];
 let kadroIndeks = 0;
-let sonSeciliIdxs = [];
 
 function sahayaDiz() {
   const idxs = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
   if (idxs.length !== 10) return;
 
-  // Seçim değiştiyse listeyi sıfırla
-  const idxKey = [...idxs].sort().join(',');
-  const oncekiKey = [...sonSeciliIdxs].sort().join(',');
-  if (idxKey !== oncekiKey) {
-    sonSeciliIdxs = idxs;
-    kadroIndeks = 0;
-
+  // Kadro listesi boşsa (ilk tıklama veya seçim değiştiyse) hesapla
+  if (kadroListesi.length === 0) {
     const sel = idxs.map(i => oyuncular[i]);
     const total = teamScore(sel);
     const target = total / 2;
 
-    // Tüm kombinasyonları hesapla, fark sırala
     const tumKadrolar = [];
     getCombinations(sel, 5).forEach(cA => {
       const diff = Math.abs(target - teamScore(cA));
@@ -586,9 +574,8 @@ function sahayaDiz() {
     });
     tumKadrolar.sort((a, b) => a.diff - b.diff);
 
-    // Tekrarları önle: cA seti benzersiz olsun (cA ve cB yer değişimi de aynı kadro sayılır)
+    // Tekrar önleme: A ve B takımları yer değiştirmiş hali aynı kadrodur
     const gorulenler = new Set();
-    kadroListesi = [];
     tumKadrolar.forEach(({ cA, cB, diff }) => {
       const keyA = [...cA].map(o => o.isim).sort().join('|');
       const keyB = [...cB].map(o => o.isim).sort().join('|');
@@ -598,19 +585,17 @@ function sahayaDiz() {
         kadroListesi.push({ cA, cB, diff });
       }
     });
+    kadroIndeks = 0;
   }
-
-  if (kadroListesi.length === 0) return;
 
   const { cA, cB } = kadroListesi[kadroIndeks];
   const tA = [...cA], tB = [...cB];
   assignPositions(tA);
   assignPositions(tB);
 
-  const sonraki = kadroIndeks + 1;
   draw(tA, tB, kadroIndeks + 1, kadroListesi.length, kadroListesi[kadroIndeks].diff);
 
-  kadroIndeks = sonraki < kadroListesi.length ? sonraki : 0;
+  kadroIndeks = (kadroIndeks + 1) % kadroListesi.length;
 }
 
 function barSingleA(lbl, v, max) {
