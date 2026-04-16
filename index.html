@@ -443,34 +443,25 @@ const oyuncular = [
   {isim:"Batu",     hiz:6, sut:7, pas:7, defans:6,  fizik:7, yetenek:8, takim_oyunu:9, disiplin:9},
 ];
 
-// Puanları hesapla
 oyuncular.forEach(o => {
   const att = (o.hiz + o.sut + o.yetenek + o.pas) / 4;
   const def = (o.defans + o.fizik + o.takim_oyunu + o.disiplin) / 4;
   o.att = parseFloat(att.toFixed(1));
   o.def = parseFloat(def.toFixed(1));
   o.reyting = parseFloat(((att + def) / 2).toFixed(1));
-  // Pozisyon: defans ağırlığına göre
   o.defRatio = def / (att + def);
 });
 
-// Pozisyon belirle (5 kişilik takımda: 1 GK, 2 DEF, 1 MID, 1 ATT)
-// defRatio > 0.58 → DEF, 0.48-0.58 → MID, < 0.48 → ATT
-// En yüksek defRatio'ya sahip → GK (en savunmacı)
 function assignPositions(team) {
   const sorted = [...team].sort((a, b) => b.defRatio - a.defRatio);
-  // GK: en savunmacı
   sorted[0].pos = 'GK';
   sorted[1].pos = 'DEF';
   sorted[2].pos = 'DEF';
   sorted[3].pos = 'MID';
   sorted[4].pos = 'ATT';
-  // Hafıza: orijinal takım sırasını koru
   team.forEach(o => { o.pos = sorted.find(s => s.isim === o.isim).pos; });
 }
 
-// Pozisyona göre koordinat (sol takım, yüzde)
-// [left%, top%]
 const posCoordA = {
   GK:  {x: 7,  y: 50},
   DEF: [{x: 22, y: 25}, {x: 22, y: 75}],
@@ -489,8 +480,8 @@ function getCoords(team, side) {
   const result = [];
   let defCount = 0;
   team.forEach(o => {
-    if (o.pos === 'GK')  result.push({o, ...coords.GK});
-    else if (o.pos === 'DEF') { result.push({o, ...coords.DEF[defCount++]}); }
+    if (o.pos === 'GK')       result.push({o, ...coords.GK});
+    else if (o.pos === 'DEF') result.push({o, ...coords.DEF[defCount++]});
     else if (o.pos === 'MID') result.push({o, ...coords.MID});
     else if (o.pos === 'ATT') result.push({o, ...coords.ATT});
   });
@@ -534,12 +525,8 @@ function updateSel() {
   document.querySelectorAll('.dot-ind').forEach((d, i) => {
     d.classList.toggle('on', i < n);
   });
-  // Seçim her değiştiğinde kadro listesini sıfırla
-  kadroListesi = [];
-  kadroIndeks = 0;
 }
 
-// Kombinasyon
 function getCombinations(arr, k) {
   const res = [];
   function go(start, cur) {
@@ -551,89 +538,73 @@ function getCombinations(arr, k) {
 }
 
 function teamScore(team) { return team.reduce((s, o) => s + o.reyting, 0); }
-function avg(team, key) { return (team.reduce((s, o) => s + o[key], 0) / team.length).toFixed(1); }
+function avg(team, key)  { return (team.reduce((s, o) => s + o[key], 0) / team.length).toFixed(1); }
 
-// Mevcut kadro havuzu ve indeks
 let kadroListesi = [];
-let kadroIndeks = 0;
+let kadroIndeks  = 0;
+let mevcutKey    = '';
 
 function sahayaDiz() {
   const idxs = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
   if (idxs.length !== 10) return;
 
-  // Kadro listesi boşsa (ilk tıklama veya seçim değiştiyse) hesapla
-  if (kadroListesi.length === 0) {
-    const sel = idxs.map(i => oyuncular[i]);
-    const total = teamScore(sel);
-    const target = total / 2;
+  const yeniKey = [...idxs].sort((a,b) => a-b).join(',');
+  if (yeniKey !== mevcutKey) {
+    mevcutKey   = yeniKey;
+    kadroIndeks = 0;
+    kadroListesi = [];
 
+    const sel    = idxs.map(i => oyuncular[i]);
+    const target = teamScore(sel) / 2;
     const tumKadrolar = [];
+
     getCombinations(sel, 5).forEach(cA => {
       const diff = Math.abs(target - teamScore(cA));
       tumKadrolar.push({ cA, cB: sel.filter(o => !cA.includes(o)), diff });
     });
     tumKadrolar.sort((a, b) => a.diff - b.diff);
 
-    // Tekrar önleme: A ve B takımları yer değiştirmiş hali aynı kadrodur
     const gorulenler = new Set();
     tumKadrolar.forEach(({ cA, cB, diff }) => {
-      const keyA = [...cA].map(o => o.isim).sort().join('|');
-      const keyB = [...cB].map(o => o.isim).sort().join('|');
-      const key = [keyA, keyB].sort().join('//');
+      const key = [[...cA],[...cB]].map(t => t.map(o => o.isim).sort().join('|'))
+                                    .sort().join('//');
       if (!gorulenler.has(key)) {
         gorulenler.add(key);
         kadroListesi.push({ cA, cB, diff });
       }
     });
-    kadroIndeks = 0;
   }
 
-  const { cA, cB } = kadroListesi[kadroIndeks];
+  const { cA, cB, diff } = kadroListesi[kadroIndeks];
   const tA = [...cA], tB = [...cB];
   assignPositions(tA);
   assignPositions(tB);
-
-  draw(tA, tB, kadroIndeks + 1, kadroListesi.length, kadroListesi[kadroIndeks].diff);
-
+  draw(tA, tB, kadroIndeks + 1, kadroListesi.length, diff);
   kadroIndeks = (kadroIndeks + 1) % kadroListesi.length;
 }
 
 function barSingleA(lbl, v, max) {
   const p = Math.round((parseFloat(v) / max) * 100);
-  return `
-    <div class="srow">
-      <span class="srow-lbl">${lbl}</span>
-      <span class="srow-val-a">${v}</span>
-      <div class="bar-track"><div class="bar-fill bfa" style="width:${p}%"></div></div>
-    </div>`;
+  return `<div class="srow">
+    <span class="srow-lbl">${lbl}</span>
+    <span class="srow-val-a">${v}</span>
+    <div class="bar-track"><div class="bar-fill bfa" style="width:${p}%"></div></div>
+  </div>`;
 }
 
 function barSingle(lbl, v, max) {
   const p = Math.round((parseFloat(v) / max) * 100);
-  return `
-    <div class="srow">
-      <span class="srow-lbl">${lbl}</span>
-      <span class="srow-val-b">${v}</span>
-      <div class="bar-track"><div class="bar-fill bfb" style="width:${p}%"></div></div>
-    </div>`;
-}
-
-function barPair(lbl, va, vb, max) {
-  const pa = Math.round((parseFloat(va) / max) * 100);
-  const pb = Math.round((parseFloat(vb) / max) * 100);
-  return `
-    <div class="srow">
-      <span class="srow-lbl">${lbl}</span>
-      <span class="srow-val-a">${va}</span>
-      <div class="bar-track"><div class="bar-fill bfa" style="width:${pa}%"></div></div>
-      <div class="bar-track"><div class="bar-fill bfb" style="width:${pb}%"></div></div>
-      <span class="srow-val-b">${vb}</span>
-    </div>`;
+  return `<div class="srow">
+    <span class="srow-lbl">${lbl}</span>
+    <span class="srow-val-b">${v}</span>
+    <div class="bar-track"><div class="bar-fill bfb" style="width:${p}%"></div></div>
+  </div>`;
 }
 
 function draw(tA, tB, kadroNo, toplamKadro, diff) {
-  document.getElementById("emptyState").style.display = "none";
-  document.getElementById("statsBar").style.display = "flex";
+  // Stats bar
+  const statsBar = document.getElementById("statsBar");
+  statsBar.style.display = "flex";
 
   const sA = teamScore(tA).toFixed(1), sB = teamScore(tB).toFixed(1);
   const dA = avg(tA, 'def'), dB = avg(tB, 'def');
@@ -641,7 +612,11 @@ function draw(tA, tB, kadroNo, toplamKadro, diff) {
   const maxS = Math.max(parseFloat(sA), parseFloat(sB)) * 1.05;
 
   document.getElementById("statsA").innerHTML = `
-    <div class="stat-head">Mavi Takım <span style="font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.02em;text-transform:none;margin-left:6px">Kadro ${kadroNo}/${toplamKadro} · fark ${parseFloat(diff).toFixed(1)}</span></div>
+    <div class="stat-head">Mavi Takım
+      <span style="font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.02em;text-transform:none;margin-left:6px">
+        Kadro ${kadroNo}/${toplamKadro} · fark ${parseFloat(diff).toFixed(1)}
+      </span>
+    </div>
     <div class="stat-rows">
       ${barSingleA("Toplam güç", sA, maxS)}
       ${barSingleA("Defans", dA, 10)}
@@ -658,8 +633,14 @@ function draw(tA, tB, kadroNo, toplamKadro, diff) {
     </div>
     <div class="chips">${tB.map(o => `<span class="chip chip-b">${o.isim}</span>`).join('')}</div>`;
 
+  // Saha: emptyState'i gizle, oyuncuları çiz
+  // emptyState DOM'dan kaldırılmadan sadece gizliyoruz — innerHTML kullanmıyoruz
+  const emptyState = document.getElementById("emptyState");
+  if (emptyState) emptyState.style.display = "none";
+
   const layer = document.getElementById("playersLayer");
-  layer.innerHTML = "";
+  // Sadece player-dot elementlerini temizle, emptyState'e dokunma
+  Array.from(layer.querySelectorAll('.player-dot')).forEach(el => el.remove());
 
   const coordsA = getCoords(tA, 'A');
   const coordsB = getCoords(tB, 'B');
